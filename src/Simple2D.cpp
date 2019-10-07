@@ -51,19 +51,6 @@ namespace Simple2D {
 		SDL_RenderPresent(renderer);
 	}
 
-	/*void Context::handle_quit(bool& quit) {
-		SDL_PumpEvents();
-		std::cout << SDL_PeepEvents(&event, 1, SDL_PEEKEVENT, SDL_MOUSEMOTION, SDL_MOUSEMOTION) << '\n';
-
-		while(SDL_PollEvent(&event)) {
-			switch(event.type) {
-				case SDL_QUIT:
-					quit = true;
-					break;
-			}
-		}
-	}*/
-
 	keyboard_e* Context::check_keyboard() {
 		SDL_PumpEvents();
 		keyboard_e* new_event = nullptr;

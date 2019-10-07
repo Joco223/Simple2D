@@ -16,6 +16,10 @@ namespace Simple2D {
 		}
 	}
 
+	void Text_context::print_sdl_error() {
+		std::cout << "ERROR: " << SDL_GetError() << '\n';
+	}
+
 	std::vector<std::string> Text_context::split(std::string input) {
 		std::string str(input);
 		std::string buf;
@@ -53,28 +57,32 @@ namespace Simple2D {
 			cached_word* cached = is_cached(i, size);
 			if(cached != nullptr) {
 				SDL_Rect dest = {x, y, cached->width, cached->height};
-				SDL_SetTextureColorMod(cached->texture, c.red, c.green, c.blue);
-				SDL_SetTextureAlphaMod(cached->texture, c.alpha);
-				SDL_RenderCopy(ctx->get_renderer(), cached->texture, nullptr, &dest);
+				if(SDL_SetTextureColorMod(cached->texture, c.red, c.green, c.blue) < 0) print_sdl_error();
+				if(SDL_SetTextureAlphaMod(cached->texture, c.alpha) < 0) print_sdl_error();
+				if(SDL_RenderCopy(ctx->get_renderer(), cached->texture, nullptr, &dest) < 0) print_sdl_error();
 				x += cached->width;
 			}else{
 				SDL_Surface* text_surface;
 				if(size == 24) {
 					text_surface = TTF_RenderUTF8_Blended(font, i.c_str(), {255, 255, 255, 255});
+					if(text_surface == nullptr) std::cout << "ERROR: " << TTF_GetError() << '\n';
 				}else{
 					TTF_Font* tmp_font = TTF_OpenFont(font_path.c_str(), size);
+					if(tmp_font == nullptr) std::cout << "ERROR: " << TTF_GetError() << '\n';
 					text_surface = TTF_RenderUTF8_Blended(tmp_font, i.c_str(), {255, 255, 255, 255});
+					if(text_surface == nullptr) std::cout << "ERROR: " << TTF_GetError() << '\n';
 					TTF_CloseFont(tmp_font);
 				}			
 				SDL_Texture* text_texture = SDL_CreateTextureFromSurface(ctx->get_renderer(), text_surface);
+				if(text_texture == nullptr) print_sdl_error();
 				SDL_FreeSurface(text_surface);
-				SDL_SetTextureAlphaMod(text_texture, c.alpha);
-				SDL_SetTextureColorMod(text_texture, c.red, c.green, c.blue);
+				if(SDL_SetTextureAlphaMod(text_texture, c.alpha) < 0) print_sdl_error();
+				if(SDL_SetTextureColorMod(text_texture, c.red, c.green, c.blue) < 0) print_sdl_error();
 
 				int width, height;
-				SDL_QueryTexture(text_texture, nullptr, nullptr, &width, &height);
+				if(SDL_QueryTexture(text_texture, nullptr, nullptr, &width, &height) < 0)  print_sdl_error();
 				SDL_Rect dest = {x, y, width, height};
-				SDL_RenderCopy(ctx->get_renderer(), text_texture, nullptr, &dest);
+				if(SDL_RenderCopy(ctx->get_renderer(), text_texture, nullptr, &dest) < 0)  print_sdl_error();
 				x += width;
 				cached_words.push_back({i, text_texture, width, height, size});
 			}

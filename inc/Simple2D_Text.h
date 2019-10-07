@@ -34,6 +34,8 @@ namespace Simple2D {
 		std::vector<std::string> split(std::string input);
 		Text_context::cached_word* is_cached(std::string word, int size);
 
+		void print_sdl_error();
+
 	public:
 		Text_context(const char* font_path);
 		~Text_context();
