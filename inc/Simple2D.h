@@ -4,6 +4,7 @@
 #include <math.h>
 #include <algorithm>
 #include <iostream>
+#include <memory>
 
 namespace Simple2D {
 	struct Colour {
@@ -187,17 +188,18 @@ namespace Simple2D {
 		float rendering_scale;
 		bool vsync;
 		Colour window_colour;
+		std::string window_name;
 
-		SDL_Window* window;
-		SDL_Renderer* renderer;
+		std::unique_ptr<SDL_Window, decltype(&SDL_DestroyWindow)> window;
+		std::unique_ptr<SDL_Renderer, decltype(&SDL_DestroyRenderer)> renderer;
 		SDL_Event event;
 
 		SDL_BlendMode get_blending_mode_internal();
 		void print_sdl_error();
 
 	public:
-		Context(int window_width, int window_height, const char* window_name);
-		~Context();
+		Context(int window_width, int window_height, const char* window_name_);
+		//~Context() noexcept;
 
 		void clear();
 		void draw();

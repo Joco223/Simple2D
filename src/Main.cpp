@@ -39,6 +39,7 @@ int main() {
 				printable.push_back(keyboard_event->character);
 
 		//Clear the screen
+
 		ctx.clear();
 
 		text_ctx.draw_text(&ctx, 50, 50, printable, 30, {50, alpha, 123, alpha});

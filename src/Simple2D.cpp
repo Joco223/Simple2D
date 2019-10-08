@@ -1,31 +1,29 @@
 #include "Simple2D.h"
 
 namespace Simple2D {
-	Context::Context(int window_width, int window_height, const char* window_name) 
+	Context::Context(int window_width, int window_height, const char* window_name_) 
 	: width(window_width), 
 	  height(window_height),
 		blending_mode(0),
 		aa_mode(0),
 		rendering_scale(1),
 		vsync(false),	
-		window_colour({0, 0, 0, 255}) {
+		window_colour({0, 0, 0, 255}),
+		window_name(window_name_),
+		window(nullptr, SDL_DestroyWindow),
+		renderer(nullptr, SDL_DestroyRenderer) {
 
-		window = SDL_CreateWindow(window_name, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, window_width, window_height, SDL_WINDOW_SHOWN);		
-		if(window == nullptr) print_sdl_error();
+		window.reset(SDL_CreateWindow(window_name_, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, window_width, window_height, SDL_WINDOW_SHOWN));
+		if(window.get() == nullptr) print_sdl_error();
 
-		renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
-		if(renderer == nullptr) print_sdl_error();
+		renderer.reset(SDL_CreateRenderer(window.get(), -1, SDL_RENDERER_ACCELERATED));
+		if(renderer.get() == nullptr) print_sdl_error();
 
-		if(SDL_RenderSetScale(renderer, rendering_scale, rendering_scale) < 0) print_sdl_error();
+		if(SDL_RenderSetScale(renderer.get(), rendering_scale, rendering_scale) < 0) print_sdl_error();
 
-		if(SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE) < 0) print_sdl_error();
+		if(SDL_SetRenderDrawBlendMode(renderer.get(), SDL_BLENDMODE_NONE) < 0) print_sdl_error();
 
 		if(SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, std::to_string(aa_mode).c_str()) < 0) print_sdl_error();
-	}
-
-	Context::~Context() {
-		SDL_DestroyRenderer(renderer);
-		SDL_DestroyWindow(window);
 	}
 
 	void Context::print_sdl_error() {
@@ -43,12 +41,12 @@ namespace Simple2D {
 	}
 
 	void Context::clear() {
-		if(SDL_RenderClear(renderer) < 0) print_sdl_error();
+		if(SDL_RenderClear(renderer.get()) < 0) print_sdl_error();
 	}
 
 	void Context::draw() {
-		if(SDL_SetRenderDrawColor(renderer, window_colour.red, window_colour.green, window_colour.blue, window_colour.alpha) < 0) print_sdl_error();
-		SDL_RenderPresent(renderer);
+		if(SDL_SetRenderDrawColor(renderer.get(), window_colour.red, window_colour.green, window_colour.blue, window_colour.alpha) < 0) print_sdl_error();
+		SDL_RenderPresent(renderer.get());
 	}
 
 	keyboard_e* Context::check_keyboard() {
@@ -130,13 +128,13 @@ namespace Simple2D {
 	}
 
 	void Context::set_vsync(bool vsync_mode) {
-		SDL_DestroyRenderer(renderer);
+		renderer.reset();
 		if(vsync_mode) {
-			renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+			renderer.reset(SDL_CreateRenderer(window.get(), -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC));
 		}else{
-			renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+			renderer.reset(SDL_CreateRenderer(window.get(), -1, SDL_RENDERER_ACCELERATED));
 		}
-		if(renderer == nullptr) print_sdl_error();
+		if(renderer.get() == nullptr) print_sdl_error();
 		vsync = vsync_mode;
 	}
 
@@ -146,8 +144,8 @@ namespace Simple2D {
 
 	void Context::set_scale(float new_scale) {
 		rendering_scale = new_scale;
-		if(SDL_RenderSetScale(renderer, rendering_scale, rendering_scale) < 0) print_sdl_error();
-		if(SDL_SetRenderDrawBlendMode(renderer, get_blending_mode_internal()) < 0) print_sdl_error();
+		if(SDL_RenderSetScale(renderer.get(), rendering_scale, rendering_scale) < 0) print_sdl_error();
+		if(SDL_SetRenderDrawBlendMode(renderer.get(), get_blending_mode_internal()) < 0) print_sdl_error();
 	}
 
 	float Context::get_scale() {
@@ -157,7 +155,7 @@ namespace Simple2D {
 	void Context::set_blending_mode(int new_blending_mode) {
 		if(new_blending_mode != 0 && new_blending_mode != 1 && new_blending_mode != 2 && new_blending_mode != 3) std::cout << "ERROR: Ivalid blending mode " << new_blending_mode << '\n';
 		blending_mode = new_blending_mode;
-		if(SDL_SetRenderDrawBlendMode(renderer, get_blending_mode_internal()) < 0) print_sdl_error();
+		if(SDL_SetRenderDrawBlendMode(renderer.get(), get_blending_mode_internal()) < 0) print_sdl_error();
 	}
 
 	int Context::get_blending_mode() {
@@ -175,21 +173,21 @@ namespace Simple2D {
 	}
 
 	SDL_Renderer* Context::get_renderer() {
-		return renderer;
+		return renderer.get();
 	}
 
 	void Context::draw_rect(int x, int y, int w, int h, Colour c, bool filled) {
-		if(SDL_SetRenderDrawColor(renderer, c.red, c.green, c.blue, c.alpha) < 0) print_sdl_error();
+		if(SDL_SetRenderDrawColor(renderer.get(), c.red, c.green, c.blue, c.alpha) < 0) print_sdl_error();
 		SDL_Rect rect = {x, y, w, h};
 		if(filled) {
-			if(SDL_RenderFillRect(renderer, &rect) < 0) print_sdl_error();
+			if(SDL_RenderFillRect(renderer.get(), &rect) < 0) print_sdl_error();
 		}else{
-			if(SDL_RenderDrawRect(renderer, &rect) < 0) print_sdl_error();
+			if(SDL_RenderDrawRect(renderer.get(), &rect) < 0) print_sdl_error();
 		}
 	}
 
 	void Context::draw_line(int x1, int y1, int x2, int y2, Colour c) {
-		if(SDL_SetRenderDrawColor(renderer, c.red, c.green, c.blue, c.alpha) < 0) print_sdl_error();
+		if(SDL_SetRenderDrawColor(renderer.get(), c.red, c.green, c.blue, c.alpha) < 0) print_sdl_error();
 
 		bool steep = (fabs(y2 - y1) > fabs(x2 - x1));
 		if(steep) {
@@ -213,9 +211,9 @@ namespace Simple2D {
 
 		for(int x = (int)x1; x < maxX; x++) {
 			if(steep) {
-				if(SDL_RenderDrawPoint(renderer, x, y) < 0) print_sdl_error();
+				if(SDL_RenderDrawPoint(renderer.get(), x, y) < 0) print_sdl_error();
 			}else{
-				if(SDL_RenderDrawPoint(renderer, x, y) < 0) print_sdl_error();
+				if(SDL_RenderDrawPoint(renderer.get(), x, y) < 0) print_sdl_error();
 			}
 
 			error -= dy;
@@ -227,7 +225,7 @@ namespace Simple2D {
 	}
 
 	void Context::draw_circle(int x1, int y1, int radius, Colour c) {
-		if(SDL_SetRenderDrawColor(renderer, c.red, c.green, c.blue, c.alpha) < 0) print_sdl_error();
+		if(SDL_SetRenderDrawColor(renderer.get(), c.red, c.green, c.blue, c.alpha) < 0) print_sdl_error();
 
 		int x = radius-1;
 		int y = 0;
@@ -236,14 +234,14 @@ namespace Simple2D {
 		int err = dx - (radius << 1);
 
 		while (x >= y) {
-			if(SDL_RenderDrawPoint(renderer, x1 + x, y1 + y) < 0) print_sdl_error();
-			if(SDL_RenderDrawPoint(renderer, x1 + y, y1 + x) < 0) print_sdl_error();
-			if(SDL_RenderDrawPoint(renderer, x1 - y, y1 + x) < 0) print_sdl_error();
-			if(SDL_RenderDrawPoint(renderer, x1 - x, y1 + y) < 0) print_sdl_error();
-			if(SDL_RenderDrawPoint(renderer, x1 - x, y1 - y) < 0) print_sdl_error();
-			if(SDL_RenderDrawPoint(renderer, x1 - y, y1 - x) < 0) print_sdl_error();
-			if(SDL_RenderDrawPoint(renderer, x1 + y, y1 - x) < 0) print_sdl_error();
-			if(SDL_RenderDrawPoint(renderer, x1 + x, y1 - y) < 0) print_sdl_error();
+			if(SDL_RenderDrawPoint(renderer.get(), x1 + x, y1 + y) < 0) print_sdl_error();
+			if(SDL_RenderDrawPoint(renderer.get(), x1 + y, y1 + x) < 0) print_sdl_error();
+			if(SDL_RenderDrawPoint(renderer.get(), x1 - y, y1 + x) < 0) print_sdl_error();
+			if(SDL_RenderDrawPoint(renderer.get(), x1 - x, y1 + y) < 0) print_sdl_error();
+			if(SDL_RenderDrawPoint(renderer.get(), x1 - x, y1 - y) < 0) print_sdl_error();
+			if(SDL_RenderDrawPoint(renderer.get(), x1 - y, y1 - x) < 0) print_sdl_error();
+			if(SDL_RenderDrawPoint(renderer.get(), x1 + y, y1 - x) < 0) print_sdl_error();
+			if(SDL_RenderDrawPoint(renderer.get(), x1 + x, y1 - y) < 0) print_sdl_error();
 
 			if(err <= 0) {
 				y++;
