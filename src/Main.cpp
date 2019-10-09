@@ -42,7 +42,7 @@ int main() {
 
 		ctx.clear();
 
-		text_ctx.draw_text(&ctx, 50, 50, printable, 30, {50, alpha, 123, alpha});
+		text_ctx.draw_text(&ctx, 50, 50, "hello world", 30, {50, alpha, 123, alpha});
 		alpha += 4;
 		alpha %= 255;
 

@@ -199,7 +199,6 @@ namespace Simple2D {
 
 	public:
 		Context(int window_width, int window_height, const char* window_name_);
-		//~Context() noexcept;
 
 		void clear();
 		void draw();

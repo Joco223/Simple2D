@@ -6,6 +6,9 @@
 #include <vector>
 #include <string>
 #include <sstream>
+#include <memory>
+#include <algorithm>
+#include <unordered_map>
 
 #include "Simple2D.h"
 
@@ -19,26 +22,39 @@ struct font_colour {
 namespace Simple2D {
 	class Text_context {
 	private:
-		TTF_Font* font;
+		std::unique_ptr<TTF_Font, decltype(&TTF_CloseFont)> font;
 		int space_width;
 		std::string font_path;
 
+
+		struct word_identifier {
+			std::string word;
+			int size;
+
+			bool operator == (const word_identifier& p) const { 
+				return word == p.word && size == p.size; 
+			} 
+		};
 		struct cached_word {
 			std::string word;
-			SDL_Texture* texture;
 			int width, height, size;
+			SDL_Texture* texture;
 		};
 
-		std::vector<Text_context::cached_word> cached_words;
+		struct cached_word_hash {
+			size_t operator() (const Text_context::word_identifier& word) const{
+				return std::hash<std::string>{}(word.word) ^ (std::hash<int>{}(word.size) << 1);
+			}
+		};
+
+		std::unordered_map<Text_context::word_identifier, Text_context::cached_word, cached_word_hash> cached_words;
 
 		std::vector<std::string> split(std::string input);
-		Text_context::cached_word* is_cached(std::string word, int size);
 
 		void print_sdl_error();
 
 	public:
 		Text_context(const char* font_path);
-		~Text_context();
 
 		void draw_text(Context* ctx, int x, int y, std::string text, int size);
 		void draw_text(Context* ctx, int x, int y, std::string text, int size, font_colour c);
