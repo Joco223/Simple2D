@@ -52,55 +52,59 @@ namespace Simple2D {
 		SDL_RenderPresent(renderer.get());
 	}
 
-	bool Context::check_keyboard(keyboard_e& new_event) {
+	std::optional<keyboard_e> Context::check_keyboard() {
 		SDL_PumpEvents();
 		if(SDL_PeepEvents(&event, 1, SDL_PEEKEVENT, SDL_KEYDOWN, SDL_KEYUP) > 0) {
+			keyboard_e new_event;
 			new_event.state = event.key.state;
 			new_event.key_code = event.key.keysym.sym;
 			new_event.mod = event.key.keysym.mod;
 			new_event.character = (unsigned char)event.key.keysym.sym;
 			SDL_PeepEvents(&event, 1, SDL_GETEVENT, SDL_KEYDOWN, SDL_KEYUP);
-			return true;
+			return new_event;
 		}
-		return false;
+		return {};
 	}
 
-	bool Context::check_mouse_motion(mouse_motion_e& new_event) {
+	std::optional<mouse_motion_e> Context::check_mouse_motion() {
 		SDL_PumpEvents();
 		if(SDL_PeepEvents(&event, 1, SDL_PEEKEVENT, SDL_MOUSEMOTION, SDL_MOUSEMOTION) > 0) {
+			mouse_motion_e new_event;
 			new_event.x = event.motion.x;
 			new_event.y = event.motion.y;
 			new_event.rel_x = event.motion.xrel;
 			new_event.rel_y = event.motion.yrel;
 			SDL_PeepEvents(&event, 1, SDL_GETEVENT, SDL_MOUSEMOTION, SDL_MOUSEMOTION);
-			return true;
+			return new_event;
 		}
-		return false;
+		return {};
 	}
 
-	bool Context::check_mouse_button(mouse_button_e& new_event) {
+	std::optional<mouse_button_e> Context::check_mouse_button() {
 		SDL_PumpEvents();
 		if(SDL_PeepEvents(&event, 1, SDL_PEEKEVENT, SDL_MOUSEBUTTONDOWN, SDL_MOUSEBUTTONUP) > 0) {
+			mouse_button_e new_event;
 			new_event.x = event.button.x;
 			new_event.y = event.button.y;
 			new_event.state = event.button.state;
 			new_event.clicks = event.button.clicks;
 			new_event.button = event.button.button;
 			SDL_PeepEvents(&event, 1, SDL_GETEVENT, SDL_MOUSEBUTTONDOWN, SDL_MOUSEBUTTONUP);
-			return true;
+			return new_event;
 		}
-		return false;
+		return {};
 	}
 
-	bool Context::check_mouse_wheel(mouse_wheel_e& new_event) {
+	std::optional<mouse_wheel_e> Context::check_mouse_wheel() {
 		SDL_PumpEvents();
 		if(SDL_PeepEvents(&event, 1, SDL_PEEKEVENT, SDL_MOUSEWHEEL, SDL_MOUSEWHEEL) > 0) {
+			mouse_wheel_e new_event;
 			new_event.x = event.wheel.x;
 			new_event.y = event.wheel.y;
 			SDL_PeepEvents(&event, 1, SDL_GETEVENT, SDL_MOUSEWHEEL, SDL_MOUSEWHEEL);
-			return true;
+			return new_event;
 		}
-		return false;
+		return {};
 	}
 
 	bool Context::check_exit() {

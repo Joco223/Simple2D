@@ -6,9 +6,10 @@
 
 #include <iostream>
 #include <string>
+#include <optional>
 
-constexpr int width                      = 640;
-constexpr int height                     = 480;
+constexpr int width                      = 1280;
+constexpr int height                     = 720;
 constexpr Simple2D::Colour window_colour = {50, 50, 50, 255};
 constexpr float scale                    = 1;
 
@@ -21,7 +22,7 @@ int main() {
 	ctx.set_blending_mode(Simple2D::S2D_BLENDING_ALPHA);             //Set blending mode to alpha mode (Off by default)
 	ctx.set_aa_mode(Simple2D::S2D_AA_NEAREST);                       //Set AA mode to nearest (Nearest by default)
 
-	Simple2D::Sprite test(&ctx, "cobblestone.png");
+	Simple2D::Sprite test(ctx, "cobblestone.png");
 
 	Simple2D::Text_context text_ctx("arial.ttf");
 
@@ -32,10 +33,10 @@ int main() {
 	while(!ctx.check_exit()) { //Check if quit button has been pressed
 
 		//Check for keyboard events
-		Simple2D::mouse_motion_e mouse_motion_event;
-		if(ctx.check_mouse_motion(mouse_motion_event)) {
-			new_x = mouse_motion_event.x;
-			new_y = mouse_motion_event.y;
+		std::optional<Simple2D::mouse_motion_e> mouse_motion_event = ctx.check_mouse_motion();
+		if(mouse_motion_event) {
+			new_x = mouse_motion_event->x;
+			new_y = mouse_motion_event->y;
 		}
 		//Clear the screen
 
@@ -43,7 +44,7 @@ int main() {
 
 		ctx.draw_square_line(50, 50, new_x, new_y, {255, 255, 255, 255});
 
-		test.draw_rotated(&ctx, 200, 200, angle);
+		test.draw_rotated(ctx, 200, 200, angle);
 		angle += 2;
 		angle %= 360;
 

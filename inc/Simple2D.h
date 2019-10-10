@@ -6,6 +6,7 @@
 #include <iostream>
 #include <memory>
 #include <cstdlib>
+#include <optional>
 
 namespace Simple2D {
 	struct Colour {
@@ -206,10 +207,10 @@ namespace Simple2D {
 		void draw() const;
 		void set_window_colour(Colour w_colour);
 
-		bool check_keyboard(keyboard_e&);
-		bool check_mouse_motion(mouse_motion_e&);
-		bool check_mouse_button(mouse_button_e&);
-		bool check_mouse_wheel(mouse_wheel_e&);
+		std::optional<keyboard_e> check_keyboard();
+		std::optional<mouse_motion_e> check_mouse_motion();
+		std::optional<mouse_button_e> check_mouse_button();
+		std::optional<mouse_wheel_e> check_mouse_wheel();
 		bool check_exit();
 		void clean_events();
 

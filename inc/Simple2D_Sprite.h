@@ -18,16 +18,16 @@ namespace Simple2D {
 
 		SDL_BlendMode get_blending_mode_internal();
 	public:
-		Sprite(const Context* ctx, const char* texture_file);
+		Sprite(const Context& ctx, const char* texture_file);
 
-		void load_sprite(const Context* ctx,  const char* texture_file);
+		void load_sprite(const Context& ctx,  const char* texture_file);
 		int get_sprite_width();
 		int get_sprite_height();
 
 		void set_blending_mode(int new_blending_mode);
 		int  get_blending_mode();
 
-		void draw(const Context* ctx, int x, int y);
-		void draw_rotated(const Context* ctx, int x, int y, double angle);
+		void draw(const Context& ctx, int x, int y);
+		void draw_rotated(const Context& ctx, int x, int y, double angle);
 	};
 }

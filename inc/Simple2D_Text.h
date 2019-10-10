@@ -72,7 +72,7 @@ namespace Simple2D {
 	public:
 		Text_context(const char* font_path);
 
-		void draw_text(const Context* ctx, int x, int y, const std::string& text, int size);
-		void draw_text(const Context* ctx, int x, int y, const std::string& text, int size, font_colour c);
+		void draw_text(const Context& ctx, int x, int y, const std::string& text, int size);
+		void draw_text(const Context& ctx, int x, int y, const std::string& text, int size, font_colour c);
 	};
 }

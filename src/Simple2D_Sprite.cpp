@@ -1,8 +1,8 @@
 #include "Simple2D_Sprite.h"
 
 namespace Simple2D {
-	Sprite::Sprite(const Context* ctx, const char* texture_file) : texture(nullptr, SDL_DestroyTexture) {
-		texture.reset(IMG_LoadTexture(ctx->get_renderer(), texture_file));
+	Sprite::Sprite(const Context& ctx, const char* texture_file) : texture(nullptr, SDL_DestroyTexture) {
+		texture.reset(IMG_LoadTexture(ctx.get_renderer(), texture_file));
 		if(texture.get() == nullptr) error_out("Unable to load texture.");
 		if(SDL_QueryTexture(texture.get(), nullptr, nullptr, &width, &height) < 0) error_out("Unable to load texture info.");
 		if(SDL_SetTextureBlendMode(texture.get(), SDL_BLENDMODE_NONE) < 0) error_out("Unable to set texture blending mode.");
@@ -19,9 +19,9 @@ namespace Simple2D {
 		return SDL_BLENDMODE_NONE;
 	}
 
-	void Sprite::load_sprite(const Context* ctx, const char* texture_file) {
+	void Sprite::load_sprite(const Context& ctx, const char* texture_file) {
 		texture.reset();
-		texture.reset(IMG_LoadTexture(ctx->get_renderer(), texture_file));
+		texture.reset(IMG_LoadTexture(ctx.get_renderer(), texture_file));
 		if(texture.get() == nullptr) error_out("Unable to load texture.");
 		if(SDL_QueryTexture(texture.get(), nullptr, nullptr, &width, &height) < 0) error_out("Unable to load texture info.");
 		if(SDL_SetTextureBlendMode(texture.get(), get_blending_mode_internal()) < 0) error_out("Unable to set texture blending mode.");
@@ -45,14 +45,14 @@ namespace Simple2D {
 		return blending_mode;
 	}
 
-	void Sprite::draw(const Context* ctx, int x, int y) {
+	void Sprite::draw(const Context& ctx, int x, int y) {
 		SDL_Rect destination = {x, y, width, height};
-		if(SDL_RenderCopy(ctx->get_renderer(), texture.get(), nullptr, &destination) < 0) error_out("Unable to render sprite.");
+		if(SDL_RenderCopy(ctx.get_renderer(), texture.get(), nullptr, &destination) < 0) error_out("Unable to render sprite.");
 	}
 
-	void Sprite::draw_rotated(const Context* ctx, int x, int y, double angle) {
+	void Sprite::draw_rotated(const Context& ctx, int x, int y, double angle) {
 		SDL_Rect destination = {x, y, width, height};
 		SDL_Point rotation_center = {width/2, height/2};
-		if(SDL_RenderCopyEx(ctx->get_renderer(), texture.get(), nullptr, &destination, angle, &rotation_center, SDL_FLIP_NONE) < 0) error_out("Unable to render sprite.");
+		if(SDL_RenderCopyEx(ctx.get_renderer(), texture.get(), nullptr, &destination, angle, &rotation_center, SDL_FLIP_NONE) < 0) error_out("Unable to render sprite.");
 	}
 }

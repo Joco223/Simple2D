@@ -28,12 +28,12 @@ namespace Simple2D {
 		return tokens;
 	}
 
-	void Text_context::draw_text(const Context* ctx, int x, int y, const std::string& text, int size) {
+	void Text_context::draw_text(const Context& ctx, int x, int y, const std::string& text, int size) {
 		font_colour white = {255, 255, 255, 255};
 		draw_text(ctx, x, y, text, size, white);
 	}
 
-	void Text_context::draw_text(const Context* ctx, int x, int y, const std::string& text, int size, font_colour c) {
+	void Text_context::draw_text(const Context& ctx, int x, int y, const std::string& text, int size, font_colour c) {
 		std::vector<std::string> split_input = split(text);
 
 		if(cached_words.size() > 200)
@@ -45,7 +45,7 @@ namespace Simple2D {
 				SDL_Rect dest = {x, y, cached->second.width, cached->second.height};
 				if(SDL_SetTextureColorMod(cached->second.texture.get(), c.red, c.green, c.blue) < 0) error_out("Unable to set text colour.");
 				if(SDL_SetTextureAlphaMod(cached->second.texture.get(), c.alpha) < 0) error_out("Unable to set text alhpa.");
-				if(SDL_RenderCopy(ctx->get_renderer(), cached->second.texture.get(), nullptr, &dest) < 0) error_out("Unable to render text.");
+				if(SDL_RenderCopy(ctx.get_renderer(), cached->second.texture.get(), nullptr, &dest) < 0) error_out("Unable to render text.");
 				x += cached->second.width;
 			}else{
 				SDL_Surface* text_surface;
@@ -59,7 +59,7 @@ namespace Simple2D {
 					if(text_surface == nullptr) error_ttf_out("Unable to render text.");
 					TTF_CloseFont(tmp_font);
 				}			
-				SDL_Texture* text_texture = SDL_CreateTextureFromSurface(ctx->get_renderer(), text_surface);
+				SDL_Texture* text_texture = SDL_CreateTextureFromSurface(ctx.get_renderer(), text_surface);
 				if(text_texture == nullptr) error_out("Unbale to create text texture.");
 				SDL_FreeSurface(text_surface);
 				if(SDL_SetTextureAlphaMod(text_texture, c.alpha) < 0) error_out("Unable to set text colour.");
@@ -68,7 +68,7 @@ namespace Simple2D {
 				int width, height;
 				if(SDL_QueryTexture(text_texture, nullptr, nullptr, &width, &height) < 0)  error_out("Unable to get word texture info.");
 				SDL_Rect dest = {x, y, width, height};
-				if(SDL_RenderCopy(ctx->get_renderer(), text_texture, nullptr, &dest) < 0)  error_out("Unable to render text.");
+				if(SDL_RenderCopy(ctx.get_renderer(), text_texture, nullptr, &dest) < 0)  error_out("Unable to render text.");
 				x += width;
 				cached_words.emplace(std::make_pair(word_identifier(i, size), cached_word(i, width, height, size, text_texture)));
 			}
