@@ -26,25 +26,22 @@ int main() {
 	Simple2D::Text_context text_ctx("arial.ttf");
 
 	int angle = 0;
-	unsigned char alpha = 1;
-
-	std::string printable = "";
+	int new_x = 0;
+	int new_y = 0;
 
 	while(!ctx.check_exit()) { //Check if quit button has been pressed
 
 		//Check for keyboard events
-		Simple2D::keyboard_e* keyboard_event = ctx.check_keyboard();
-		if(keyboard_event != nullptr)
-			if(keyboard_event->state == Simple2D::KEY_DOWN)
-				printable.push_back(keyboard_event->character);
-
+		Simple2D::mouse_motion_e mouse_motion_event;
+		if(ctx.check_mouse_motion(mouse_motion_event)) {
+			new_x = mouse_motion_event.x;
+			new_y = mouse_motion_event.y;
+		}
 		//Clear the screen
 
 		ctx.clear();
 
-		text_ctx.draw_text(&ctx, 50, 50, "hello world", 30, {50, alpha, 123, alpha});
-		alpha += 4;
-		alpha %= 255;
+		ctx.draw_square_line(50, 50, new_x, new_y, {255, 255, 255, 255});
 
 		test.draw_rotated(&ctx, 200, 200, angle);
 		angle += 2;

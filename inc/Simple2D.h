@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <iostream>
 #include <memory>
+#include <cstdlib>
 
 namespace Simple2D {
 	struct Colour {
@@ -182,6 +183,8 @@ namespace Simple2D {
 		int x, y;
 	};
 
+	void error_out(const std::string& error);
+
 	class Context {
 	private:
 		int width, height, blending_mode, aa_mode;
@@ -195,38 +198,38 @@ namespace Simple2D {
 		SDL_Event event;
 
 		SDL_BlendMode get_blending_mode_internal();
-		void print_sdl_error();
 
 	public:
 		Context(int window_width, int window_height, const char* window_name_);
 
-		void clear();
-		void draw();
+		void clear() const;
+		void draw() const;
 		void set_window_colour(Colour w_colour);
 
-		keyboard_e* check_keyboard();
-		mouse_motion_e* check_mouse_motion();
-		mouse_button_e* check_mouse_button();
-		mouse_wheel_e* check_mouse_wheel();
+		bool check_keyboard(keyboard_e&);
+		bool check_mouse_motion(mouse_motion_e&);
+		bool check_mouse_button(mouse_button_e&);
+		bool check_mouse_wheel(mouse_wheel_e&);
 		bool check_exit();
 		void clean_events();
 
 		void set_vsync(bool vsync_mode);
-		bool get_vsync();
+		bool get_vsync() const;
 
 		void  set_scale(float new_scale);
-		float get_scale();
+		float get_scale() const;
 
 		void set_blending_mode(int new_blending_mode);
-		int  get_blending_mode();
+		int  get_blending_mode() const;
 
 		void set_aa_mode(int new_aa_mode);
-		int  get_aa_mode();
+		int  get_aa_mode() const;
 
-		SDL_Renderer* get_renderer();
+		SDL_Renderer* get_renderer() const;
 
-		void draw_rect(int x, int y, int w, int h, Colour c, bool filled);
-		void draw_line(int x1, int y1, int x2, int y2, Colour c);
-		void draw_circle(int x1, int y2, int radius, Colour c);
+		void draw_rect(int x, int y, int w, int h, Colour c, bool filled) const;
+		void draw_line(int x1, int y1, int x2, int y2, Colour c) const;
+		void draw_square_line(int x1, int y1, int x2, int y2, Colour c) const;
+		void draw_circle(int x1, int y2, int radius, Colour c) const;
 	};
 }

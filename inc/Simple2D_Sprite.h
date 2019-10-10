@@ -3,29 +3,31 @@
 #include <SDL.h>
 #include <SDL_image.h>
 #include <iostream>
+#include <memory>
 
 #include "Simple2D.h"
 
 namespace Simple2D {
+
+	extern void error_out(const std::string& error);
+	
 	class Sprite {
 	private:
 		int width, height, blending_mode;
-		SDL_Texture* texture;
+		std::unique_ptr<SDL_Texture, decltype(&SDL_DestroyTexture)> texture;
 
 		SDL_BlendMode get_blending_mode_internal();
-		void print_sdl_error();
 	public:
-		Sprite(Context* ctx, const char* texture_file);
-		~Sprite();
+		Sprite(const Context* ctx, const char* texture_file);
 
-		void load_sprite(Context* ctx,  const char* texture_file);
+		void load_sprite(const Context* ctx,  const char* texture_file);
 		int get_sprite_width();
 		int get_sprite_height();
 
 		void set_blending_mode(int new_blending_mode);
 		int  get_blending_mode();
 
-		void draw(Context* ctx, int x, int y);
-		void draw_rotated(Context* ctx, int x, int y, double angle);
+		void draw(const Context* ctx, int x, int y);
+		void draw_rotated(const Context* ctx, int x, int y, double angle);
 	};
 }
